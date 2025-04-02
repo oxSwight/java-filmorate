@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
-public class ExceptionHandler {
+public class ErrorHandler  {
     @org.springframework.web.bind.annotation.ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidation(final ValidationException e) {

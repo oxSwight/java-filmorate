@@ -61,11 +61,7 @@ public class UserService {
         return commonFriends;
     }
 
-    public User findUser(Integer userId) {
-        return getUserOrThrow(userId);
-    }
-
-    private User getUserOrThrow(Integer userId) {
+    public User getUserOrThrow(Integer userId) {
         User user = userStorage.getUserById(userId);
         if (user == null) {
             throw new NotFoundException("Пользователь с ID " + userId + " не найден");
