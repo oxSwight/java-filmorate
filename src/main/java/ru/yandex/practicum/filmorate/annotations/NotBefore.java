@@ -6,16 +6,12 @@ import ru.yandex.practicum.filmorate.validator.NotBeforeValidator;
 
 import java.lang.annotation.*;
 
-@Documented
-@Constraint(validatedBy = NotBeforeValidator.class)
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = NotBeforeValidator.class)
 public @interface NotBefore {
-    String message() default "Дата релиза фильма должна быть не раньше 28 декабря 1895 года";
-
+    String message() default "Дата должна быть после {value}";
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
-
     String value();
 }

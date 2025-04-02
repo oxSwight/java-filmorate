@@ -11,7 +11,8 @@ import java.util.Set;
 public class User {
     private Integer id;
     private String name;
-    @NotBlank(message = "Логин не может быть пустым и содержать пробелы")
+    @NotBlank(message = "Логин не может быть пустым")
+    @Pattern(regexp = "\\S+", message = "Логин не должен содержать пробелов")
     private String login;
     @Email(message = "Некорректная электронная почта")
     @NotBlank(message = "Электронная почта не должна быть пустой")
