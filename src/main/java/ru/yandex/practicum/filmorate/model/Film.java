@@ -24,6 +24,7 @@ public class Film {
     @Min(value = 1, message = "Продолжительность фильма должна быть положительным числом")
     private Integer duration;
     private Set<Integer> likes = new HashSet<>();
+
     public int getLikesCount() {
         return likes.size();
     }
