@@ -14,11 +14,11 @@ public interface UserStorage {
 
     User update(User newUser);
 
-    void addFriend(Integer userId,Integer friendId);
+    void addFriend(Integer userId, Integer friendId);
 
-    void removeFriend(Integer userId,Integer friendId);
+    void removeFriend(Integer userId, Integer friendId);
 
-    List<User> findCommonFriends(Integer userId,Integer friendId);
+    List<User> findCommonFriends(Integer userId, Integer friendId);
 
     List<User> findAllFriends(Integer userId);
 }

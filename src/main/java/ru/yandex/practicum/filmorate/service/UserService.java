@@ -58,6 +58,7 @@ public class UserService {
         return userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден."));
     }
+
     public Collection<User> findAll() {
         return userStorage.getAllUsers();
     }

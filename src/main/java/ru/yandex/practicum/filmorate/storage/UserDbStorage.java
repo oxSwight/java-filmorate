@@ -22,16 +22,13 @@ import java.util.Optional;
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
     private final UserRowMapper userRowMapper;
-    private static final String INSERT_QUERY = "INSERT INTO users(name, login, email,birthday) " +
-            "VALUES (?, ?, ?, ?)";
+    private static final String INSERT_QUERY = "INSERT INTO users(name, login, email,birthday) " + "VALUES (?, ?, ?, ?)";
     private static final String FIND_ALL = "SELECT * FROM users";
     private static final String FIND_BY_ID = "SELECT * FROM users where user_id = ?";
     private static final String DELETE = "DELETE FROM users WHERE user_id = ?";
     private static final String UPDATE = "UPDATE users SET name = ?, login = ?, email = ?, birthday = ? WHERE user_id = ?";
-    private static final String MERGE_FRIEND =
-            "MERGE INTO friendship(user_id, friend_id, status) " +
-                    "KEY(user_id, friend_id) " +  // Указываем столбцы для проверки уникальности
-                    "VALUES (?, ?, ?)";
+    private static final String MERGE_FRIEND = "MERGE INTO friendship(user_id, friend_id, status) " + "KEY(user_id, friend_id) " +  // Указываем столбцы для проверки уникальности
+            "VALUES (?, ?, ?)";
     private static final String DELETE_FRIEND = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
     private static final String FIND_COMMON_FRIENDS = """
             SELECT u.user_id, u.name, u.email, u.login, u.birthday
@@ -70,8 +67,7 @@ public class UserDbStorage implements UserStorage {
     public User create(User user) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, user.getName());
             ps.setString(2, user.getLogin());
             ps.setString(3, user.getEmail());
@@ -90,8 +86,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User newUser) {
-        int rowsUpdated = jdbcTemplate.update(UPDATE, newUser.getName(),
-                newUser.getLogin(), newUser.getEmail(), newUser.getBirthday(), newUser.getId());
+        int rowsUpdated = jdbcTemplate.update(UPDATE, newUser.getName(), newUser.getLogin(), newUser.getEmail(), newUser.getBirthday(), newUser.getId());
         if (rowsUpdated == 0) {
             throw new NotFoundException("Пользователь с " + newUser.getId() + " не найден.");
         }
