@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 
 import java.util.Collection;
@@ -26,6 +26,11 @@ public class FilmController {
     @GetMapping("/popular")
     public List<Film> mostPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.mostPopularFilms(count);
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Integer id) {
+        return filmService.getFilmByIdOrThrow(id);
     }
 
     @GetMapping
