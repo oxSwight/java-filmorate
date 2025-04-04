@@ -1,7 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
@@ -52,5 +57,18 @@ public class UserService {
     public User findUser(Integer userId) {
         return userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден."));
+    }
+    public Collection<User> findAll() {
+        return userStorage.getAllUsers();
+    }
+
+    public User create(User user) {
+        log.info("Создание нового пользователя: {}", user.getName());
+        return userStorage.create(user);
+    }
+
+    public User update(User newUser) {
+        log.info("Обновление пользователя с id={}", newUser.getId());
+        return userStorage.update(newUser);
     }
 }

@@ -28,8 +28,10 @@ public class UserDbStorage implements UserStorage {
     private static final String FIND_BY_ID = "SELECT * FROM users where user_id = ?";
     private static final String DELETE = "DELETE FROM users WHERE user_id = ?";
     private static final String UPDATE = "UPDATE users SET name = ?, login = ?, email = ?, birthday = ? WHERE user_id = ?";
-    private static final String INSERT_FRIEND = "INSERT INTO friendship(user_id,friend_id,status) " +
-            "VALUES (?, ?, ?)";
+    private static final String MERGE_FRIEND =
+            "MERGE INTO friendship(user_id, friend_id, status) " +
+                    "KEY(user_id, friend_id) " +  // Указываем столбцы для проверки уникальности
+                    "VALUES (?, ?, ?)";
     private static final String DELETE_FRIEND = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
     private static final String FIND_COMMON_FRIENDS = """
             SELECT u.user_id, u.name, u.email, u.login, u.birthday
@@ -98,7 +100,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(Integer userId, Integer friendId) {
-        jdbcTemplate.update(INSERT_FRIEND, userId, friendId, "CONFIRMED");
+        jdbcTemplate.update(MERGE_FRIEND, userId, friendId, "CONFIRMED");
     }
 
     @Override

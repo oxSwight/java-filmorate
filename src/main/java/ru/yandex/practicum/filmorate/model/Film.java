@@ -33,7 +33,4 @@ public class Film {
 
     private Set<Integer> likes = new HashSet<>();
 
-    public int getLikesCount() {
-        return likes.size();
-    }
 }

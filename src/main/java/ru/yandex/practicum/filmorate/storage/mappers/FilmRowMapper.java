@@ -11,7 +11,6 @@ import java.sql.SQLException;
 
 @Component
 public class FilmRowMapper implements RowMapper<Film> {
-    FilmDbStorage filmDbStorage;
 
     @Override
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {

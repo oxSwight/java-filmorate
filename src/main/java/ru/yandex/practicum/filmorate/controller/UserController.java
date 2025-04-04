@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,11 +13,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserDbStorage userStorage;
     private final UserService userService;
 
-    public UserController(UserDbStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -30,21 +29,6 @@ public class UserController {
         return userService.findCommonFriends(id, otherId);
     }
 
-    @GetMapping
-    public Collection<User> findAll() {
-        return userStorage.getAllUsers();
-    }
-
-    @PostMapping
-    public User create(@Valid @RequestBody User user) {
-        return userStorage.create(user);
-    }
-
-    @PutMapping
-    public User update(@Valid @RequestBody User newUser) {
-        return userStorage.update(newUser);
-    }
-
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
         userService.addFriend(id, friendId);
@@ -54,4 +38,20 @@ public class UserController {
     public void deleteFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
         userService.deleteFriend(id, friendId);
     }
+
+    @GetMapping
+    public Collection<User> findAll() {
+        return userService.findAll();
+    }
+
+    @PostMapping
+    public User create(@Valid @RequestBody User user) {
+        return userService.create(user);
+    }
+
+    @PutMapping
+    public User update(@Valid @RequestBody User newUser) {
+        return userService.update(newUser);
+    }
+
 }
