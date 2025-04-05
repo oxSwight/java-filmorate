@@ -4,75 +4,67 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
-    private final InMemoryUserStorage userStorage;
+    private final UserDbStorage userStorage;
 
-    public UserService(InMemoryUserStorage userStorage) {
+    public UserService(UserDbStorage userStorage) {
         this.userStorage = userStorage;
     }
 
     public void addFriend(Integer userId, Integer friendId) {
-        User user = getUserOrThrow(userId);
-        User friend = getUserOrThrow(friendId);
+        User user = userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден."));
+        User friend = userStorage.findById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + friendId + " не найден."));
 
-        if (!user.getFriends().add(friend.getId())) {
-            log.warn("Пользователь ID = {} уже добавил в друзья пользователя ID = {}", userId, friendId);
-        } else {
-            friend.getFriends().add(user.getId());
-            log.info("Добавлен друг: {} -> {}", userId, friendId);
-        }
+        userStorage.addFriend(userId, friendId);
+
+        log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
     public void deleteFriend(Integer userId, Integer friendId) {
-        User user = getUserOrThrow(userId);
-        User friend = getUserOrThrow(friendId);
+        User user = userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден."));
+        User friend = userStorage.findById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + friendId + " не найден."));
 
-        if (!user.getFriends().remove(friend.getId())) {
-            log.warn("Пользователь ID = {} не был другом пользователя ID = {}", userId, friendId);
-        } else {
-            friend.getFriends().remove(user.getId());
-            log.info("Удален друг: {} -> {}", userId, friendId);
-        }
+        userStorage.removeFriend(userId, friendId);
+
+        log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
     }
 
     public List<User> findAllFriends(Integer userId) {
-        User user = getUserOrThrow(userId);
-        List<User> friends = getUsersByIds(user.getFriends());
-        log.info("Список друзей пользователя ID = {}: {}", userId, friends);
-        return friends;
+        User user = userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден."));
+        return userStorage.findAllFriends(userId);
     }
 
     public List<User> findCommonFriends(Integer userId, Integer otherId) {
-        User user = getUserOrThrow(userId);
-        User otherUser = getUserOrThrow(otherId);
-
-        Set<Integer> commonFriendIds = new HashSet<>(user.getFriends());
-        commonFriendIds.retainAll(otherUser.getFriends());
-
-        List<User> commonFriends = getUsersByIds(commonFriendIds);
-        log.info("Общие друзья между {} и {}: {}", userId, otherId, commonFriends);
-        return commonFriends;
+        return userStorage.findCommonFriends(userId, otherId);
     }
 
-    public User getUserOrThrow(Integer userId) {
-        User user = userStorage.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("Пользователь с ID " + userId + " не найден");
-        }
-        return user;
+    public User findUser(Integer userId) {
+        return userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден."));
     }
 
-    private List<User> getUsersByIds(Set<Integer> ids) {
-        return ids.stream()
-                .map(userStorage::getUserById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    public Collection<User> findAll() {
+        return userStorage.getAllUsers();
+    }
+
+    public User create(User user) {
+        log.info("Создание нового пользователя: {}", user.getName());
+        return userStorage.create(user);
+    }
+
+    public User update(User newUser) {
+        log.info("Обновление пользователя с id={}", newUser.getId());
+        return userStorage.update(newUser);
     }
 }
