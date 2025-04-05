@@ -50,10 +50,9 @@ public class FilmService {
     }
 
     public List<Film> mostPopularFilms(int size) {
-        return filmStorage.findMostPopularFilms().stream()
-                .limit(size)
-                .collect(Collectors.toList());
+        return filmStorage.findMostPopularFilms(size);
     }
+
 
     public Film getFilmByIdOrThrow(Integer filmId) {
         return filmStorage.findById(filmId)

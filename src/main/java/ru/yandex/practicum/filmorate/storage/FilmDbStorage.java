@@ -77,6 +77,23 @@ public class FilmDbStorage implements FilmStorage {
                 GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.rating_name
                 ORDER BY likes_film DESC
             """;
+    private static final String FIND_MOST_POPULAR_FILMS_LIMITED = """
+        SELECT f.film_id,
+               f.name,
+               f.description,
+               f.release_date,
+               f.duration,
+               f.rating_id,
+               r.rating_name,
+               COUNT(l.user_id) AS likes_film
+        FROM film AS f
+        JOIN rating r ON f.rating_id = r.rating_id
+        LEFT JOIN likes AS l ON f.film_id = l.film_id
+        GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.rating_name
+        ORDER BY likes_film DESC
+        LIMIT ?
+        """;
+
 
     @Override
     public List<Film> getAllFilms() {
@@ -191,9 +208,36 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findMostPopularFilms() {
-        return jdbcTemplate.query(FIND_MOST_POPULAR_FILMS, filmRowMapper);
+    public List<Film> findMostPopularFilms(int limit) {
+        List<Film> films = jdbcTemplate.query(FIND_MOST_POPULAR_FILMS_LIMITED, filmRowMapper, limit);
+
+        // загрузка жанров и лайков аналогично getAllFilms:
+        Map<Integer, Set<Genre>> filmGenres = new HashMap<>();
+        jdbcTemplate.query(FIND_GENRES_FILMS,
+                (rs) -> {
+                    int filmId = rs.getInt("film_id");
+                    Genre genre = new Genre();
+                    genre.setId(rs.getInt("genre_id"));
+                    genre.setName(rs.getString("name"));
+                    filmGenres.computeIfAbsent(filmId, k -> new HashSet<>()).add(genre);
+                });
+
+        Map<Integer, Set<Integer>> filmLikes = new HashMap<>();
+        jdbcTemplate.query(FIND_LIKES_OF_FILMS,
+                (rs) -> {
+                    int filmId = rs.getInt("film_id");
+                    filmLikes.computeIfAbsent(filmId, k -> new HashSet<>()).add(rs.getInt("user_id"));
+                });
+
+        for (Film film : films) {
+            int id = film.getId();
+            film.setGenres(filmGenres.getOrDefault(id, new HashSet<>()));
+            film.setLikes(filmLikes.getOrDefault(id, new HashSet<>()));
+        }
+
+        return films;
     }
+
 
     @Override
     public void addLike(Integer filmId, Integer userID) {

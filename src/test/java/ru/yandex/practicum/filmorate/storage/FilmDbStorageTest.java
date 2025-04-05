@@ -176,7 +176,7 @@ class FilmDbStorageTest {
         filmDbStorage.addLike(film1.getId(), user2.getId());
         filmDbStorage.addLike(film2.getId(), user1.getId());
 
-        List<Film> popular = filmDbStorage.findMostPopularFilms();
+        List<Film> popular = filmDbStorage.findMostPopularFilms(2);
 
         assertThat(popular)
                 .hasSizeGreaterThanOrEqualTo(2)
